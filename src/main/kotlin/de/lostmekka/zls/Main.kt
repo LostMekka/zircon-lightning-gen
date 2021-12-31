@@ -17,6 +17,7 @@ import kotlin.math.exp
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 import kotlin.math.tanh
+import kotlin.random.Random
 
 const val width = 60
 const val height = 30
@@ -43,9 +44,7 @@ fun main() {
     screen.closedValue.onChange { if (it.newValue) updateJob.cancel() }
 }
 
-val bgColor = TileColor.create(0, 0, 0)
-
-fun createLightning() = Lightning(Position.create(random(10..(width - 10)), 0), 0 until height, random(10..60))
+fun createLightning() = Lightning(Position.create(random(10..(width - 10)), 0), 0 until height, random(3..30))
 
 class Lightning(startPos: Position, val yRange: IntRange, val randomness: Int) {
     companion object {
@@ -84,7 +83,7 @@ class Lightning(startPos: Position, val yRange: IntRange, val randomness: Int) {
         val parent: Node? = null,
     ) {
         var intensity = 0.7
-        val totalCost = traveledDistance + (yRange.last - pos.y + random(0..randomness))
+        val totalCost = traveledDistance + yRange.last - pos.y + exp(Random.nextDouble() * randomness).roundToInt()
         var shape = originDirection
         val char
             get() = when {
@@ -116,6 +115,7 @@ class Lightning(startPos: Position, val yRange: IntRange, val randomness: Int) {
     private var stateCounter = 0
     private var finalPath = setOf<Node>()
     private var fadeAmount = 0.0
+
     fun iterate() {
         when (state) {
             State.Searching -> {
@@ -206,7 +206,7 @@ class Lightning(startPos: Position, val yRange: IntRange, val randomness: Int) {
     }
 
     private val bgTile = Tile.newBuilder()
-        .withBackgroundColor(bgColor)
+        .withBackgroundColor(TileColor.create(0, 0, 0))
         .withCharacter(' ')
         .build()
     private var bgIntensity = mapOf<Position, Double>()
